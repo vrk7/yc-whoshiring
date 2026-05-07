@@ -402,6 +402,7 @@ function getStateForThread(stateObj) {
 }
 
 const jobCardActions = {
+  "tag-search": handleTagSearchAction,
   toggle: handleToggleAction,
   star: handleStarAction,
   "copy-link": handleCopyLinkAction,
@@ -411,6 +412,13 @@ const jobCardActions = {
   remove: handleRemoveAction,
   unhide: handleUnhideAction,
 };
+
+function handleTagSearchAction(_jobId: string, actionTarget: HTMLElement) {
+  const tag = actionTarget.dataset.tag;
+  if (!tag || !domElements.searchInput) return;
+  domElements.searchInput.value = tag.includes(" ") ? `"${tag}"` : tag;
+  domElements.searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+}
 
 function handleToggleAction(jobId: string, _actionTarget: HTMLElement, jobCard: HTMLElement) {
   jobCard.classList.toggle("expanded");

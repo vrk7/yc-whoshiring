@@ -1301,3 +1301,37 @@ body:not(.dark) .search-match {
 .job-card.expanded .collapse-btn .fa-chevron-down {
   transform: rotate(180deg);
 }
+
+/* Pipe-tag pills */
+.job-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 2px 0 4px;
+}
+
+.job-tag {
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--on-surface);
+  opacity: 0.8;
+  transition: background 0.15s, opacity 0.15s;
+  line-height: 1.7;
+}
+
+.job-tag:hover {
+  background: var(--button-hover);
+  opacity: 1;
+}
+
+.job-tag.tag-remote {
+  border-color: #388e3c;
+}
+
+.job-tag.tag-hybrid {
+  border-color: #e65100;
+}

@@ -38,22 +38,34 @@ import {
 } from "./ui-render.js";
 
 import { parseQuery } from "./search-logic.js";
+import type { DomElements } from "./types.js";
 
 // DOM Elements Cache
-let domElements = {};
+let domElements: DomElements = {
+  searchInput: null,
+  clearSearchBtn: null,
+  controlButtonsContainer: null,
+  jobsContainer: null,
+  themeToggle: null,
+  goToTopButton: null,
+  helpModal: null,
+  openHelpModalBtn: null,
+  closeHelpModalBtn: null,
+  toastElement: null,
+};
 let uiEventListenersInitialized = false;
 
 function cacheDOMElements() {
   domElements = {
-    searchInput: document.getElementById("search"),
-    clearSearchBtn: document.getElementById("clearSearchBtn"),
+    searchInput: document.getElementById("search") as HTMLInputElement,
+    clearSearchBtn: document.getElementById("clearSearchBtn") as HTMLButtonElement,
     controlButtonsContainer: document.querySelector(".control-buttons"),
     jobsContainer: document.getElementById("jobs"),
-    themeToggle: document.getElementById("themeToggle"),
-    goToTopButton: document.getElementById("goToTop"),
+    themeToggle: document.getElementById("themeToggle") as HTMLButtonElement,
+    goToTopButton: document.getElementById("goToTop") as HTMLButtonElement,
     helpModal: document.getElementById("helpModal"),
-    openHelpModalBtn: document.getElementById("openHelpModal"),
-    closeHelpModalBtn: document.getElementById("closeHelpModal"),
+    openHelpModalBtn: document.getElementById("openHelpModal") as HTMLButtonElement,
+    closeHelpModalBtn: document.getElementById("closeHelpModal") as HTMLButtonElement,
     toastElement: document.getElementById("toast"),
   };
 }
@@ -115,7 +127,7 @@ function setupSearchInput() {
 function setupOperatorButtons() {
   const { searchInput } = domElements;
 
-  document.querySelectorAll(".op-btn").forEach((button) => {
+  document.querySelectorAll<HTMLElement>(".op-btn").forEach((button) => {
     button.addEventListener("click", (e) => {
       e.preventDefault();
       if (!searchInput) return;
@@ -163,14 +175,14 @@ const keyboardShortcuts = {
   j: () => navigateJobs("next"),
   k: () => navigateJobs("prev"),
   "/": () => domElements.searchInput?.focus(),
-  Escape: () => document.activeElement?.blur(),
+  Escape: () => (document.activeElement as HTMLElement)?.blur(),
   a: () => toggleFavoriteJob(),
   e: () => toggleExcludeJob(),
   g: () => window.scrollTo({ top: 0, behavior: "smooth" }),
 };
 
 function navigateJobs(direction) {
-  const jobCards = document.querySelectorAll(".job-card");
+  const jobCards = document.querySelectorAll<HTMLElement>(".job-card");
   if (!jobCards.length) return;
 
   const focused = document.activeElement;
@@ -193,7 +205,7 @@ function navigateJobs(direction) {
 function toggleFavoriteJob() {
   const focused = document.activeElement;
   const jobCard = focused?.closest(".job-card");
-  const favoriteButton = jobCard?.querySelector(".star-btn");
+  const favoriteButton = jobCard?.querySelector<HTMLElement>(".star-btn");
 
   if (favoriteButton) {
     favoriteButton.click();
@@ -205,7 +217,7 @@ function toggleFavoriteJob() {
 function toggleExcludeJob() {
   const focused = document.activeElement;
   const jobCard = focused?.closest(".job-card");
-  const removeUnHideButton = jobCard?.querySelector(".btn-remove, .btn-unhide");
+  const removeUnHideButton = jobCard?.querySelector<HTMLElement>(".btn-remove, .btn-unhide");
 
   if (removeUnHideButton) {
     removeUnHideButton.click();
@@ -216,8 +228,9 @@ function toggleExcludeJob() {
 
 function setupGlobalKeyboardShortcuts() {
   document.addEventListener("keydown", (e) => {
-    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
-      if (e.key === "Escape") e.target.blur();
+    const target = e.target as HTMLElement;
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+      if (e.key === "Escape") target.blur();
       return;
     }
 

@@ -32,7 +32,7 @@ function addTargetBlankToLinks(html) {
   if (!html) return html;
   const parser = new DOMParser();
   const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
-  const root = doc.body.firstChild;
+  const root = doc.body.firstChild as HTMLElement;
   const links = root.querySelectorAll("a");
   links.forEach((link) => {
     link.setAttribute("target", "_blank");
@@ -75,7 +75,7 @@ function highlightSearchTerms(text, queryTokens) {
   // Parse the HTML string into a DOM tree
   const parser = new DOMParser();
   const doc = parser.parseFromString(`<div>${text}</div>`, "text/html");
-  const root = doc.body.firstChild;
+  const root = doc.body.firstChild as HTMLElement;
 
   // Recursively walk the DOM tree, highlighting matches in text nodes only
   function walk(node) {
@@ -257,15 +257,13 @@ export function removeJobCardInPlace(jobId) {
   const jobCard = document.querySelector(`.job-card[data-job-id="${jobId}"]`);
   if (jobCard && jobCard.parentNode) {
     // Always prefer the next card (down), only use previous if no next exists
-    let nextCard = jobCard.nextElementSibling;
+    let nextCard = jobCard.nextElementSibling as HTMLElement | null;
     jobCard.parentNode.removeChild(jobCard);
     if (nextCard && nextCard.classList.contains("job-card")) {
-      // Scroll so the next card is at the top of the viewport
       nextCard.scrollIntoView({ behavior: "smooth", block: "start" });
       nextCard.focus();
     } else {
-      // If no next, try previous
-      let prevCard = jobCard.previousElementSibling;
+      let prevCard = jobCard.previousElementSibling as HTMLElement | null;
       if (prevCard && prevCard.classList.contains("job-card")) {
         prevCard.scrollIntoView({ behavior: "smooth", block: "start" });
         prevCard.focus();
@@ -306,7 +304,7 @@ export function renderCategorySwitcher() {
         button.classList.add("active");
 
         // Update search input placeholder
-        const searchInput = document.getElementById("search");
+        const searchInput = document.getElementById("search") as HTMLInputElement;
         if (searchInput && CATEGORY_API_MAP[category].placeholder) {
           searchInput.placeholder = CATEGORY_API_MAP[category].placeholder;
         }
@@ -345,7 +343,7 @@ export function renderThreadSwitcher() {
   const currentCategoryThreads = allThreads[currentCategory];
   if (!currentCategoryThreads || currentCategoryThreads.length === 0) return;
 
-  const threadsByYearMonth = new Map();
+  const threadsByYearMonth = new Map<number, Map<string, (typeof currentCategoryThreads)[0]>>();
   currentCategoryThreads.forEach((t) => {
     const { year, month } = getYearAndMonthFromTitle(t.title);
     if (year && month) {
@@ -365,8 +363,8 @@ export function renderThreadSwitcher() {
 
   years.forEach((year) => {
     const yearBtn = document.createElement("button");
-    yearBtn.textContent = year;
-    yearBtn.dataset.year = year;
+    yearBtn.textContent = String(year);
+    yearBtn.dataset.year = String(year);
     yearBtn.classList.add("year-btn");
     if (year === selectedYear) {
       yearBtn.classList.add("active");
@@ -491,7 +489,7 @@ function appendSearchResultsCount(query, filteredCount) {
 
 export function renderJobs(commentsToRender) {
   const container = document.getElementById("jobs");
-  const query = document.getElementById("search").value;
+  const query = (document.getElementById("search") as HTMLInputElement).value;
   // Filter button states will be accessed directly via their element IDs or references
   // once ui-events.js creates them. For now, assume they might be undefined if accessed early.
   const showFavs =
@@ -597,7 +595,7 @@ export function renderJobs(commentsToRender) {
         hour12: true,
       });
       const now = new Date();
-      const diffMs = now - d;
+      const diffMs = now.getTime() - d.getTime();
       const diffSecs = Math.floor(diffMs / 1000);
       const diffMins = Math.floor(diffSecs / 60);
       const diffHours = Math.floor(diffMins / 60);

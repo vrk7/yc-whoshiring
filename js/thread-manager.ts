@@ -1,3 +1,4 @@
+import type { LoadThreadOptions } from "./types.js";
 import { CATEGORY_API_MAP, CATEGORY_CACHE_KEY } from "./config.js";
 
 import {
@@ -53,7 +54,7 @@ function isJobsContainerInErrorState() {
 
 function setThreadButtonsActive(threadId) {
   document
-    .querySelectorAll(".year-selector button, .month-selector button")
+    .querySelectorAll<HTMLElement>(".year-selector button, .month-selector button")
     .forEach((btn) => {
       btn.classList.remove("active");
 
@@ -145,7 +146,7 @@ async function fetchCategoryThreadLists() {
   );
 }
 
-export async function loadThread(id, options = {}) {
+export async function loadThread(id: string | number, options: LoadThreadOptions = {}) {
   const { preserveVisibleContent = false } = options;
   const startTime = performance.now();
   const requestedIdForThisCall = id;

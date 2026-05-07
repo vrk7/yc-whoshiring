@@ -28,6 +28,9 @@ import { isJobSeen, setupSeenObserver } from "./seen.js";
 
 export const highlightClass = "active";
 
+const RENDER_CHUNK_SIZE = 50;
+let renderObserver: IntersectionObserver | null = null;
+
 // Adds target="_blank" and rel="noopener noreferrer" to all links in HTML content
 function addTargetBlankToLinks(html) {
   if (!html) return html;
@@ -488,6 +491,178 @@ function appendSearchResultsCount(query, filteredCount) {
   }
 }
 
+function buildJobCard(c, queryTokens: string[], showHiddenActive: boolean): HTMLElement {
+  const jobId = String(c.id);
+  const appliedStatus = applied[currentThreadId]?.[jobId];
+  const note = notes[currentThreadId]?.[jobId] || "";
+  const isFav = favorites[currentThreadId]?.[jobId];
+
+  let postedTime = "";
+  if (c.created_at) {
+    const d = new Date(c.created_at);
+    const formattedDate = d.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    let timeAgo = "";
+    if (diffDays > 0)
+      timeAgo = `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+    else if (diffHours > 0)
+      timeAgo = `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
+    else if (diffMins > 0)
+      timeAgo = `${diffMins} ${diffMins === 1 ? "minute" : "minutes"} ago`;
+    else timeAgo = "just now";
+    postedTime = `${formattedDate} <span title="${d.toLocaleString()}">(${timeAgo})</span>`;
+  }
+
+  let commentTextHTML = c.text || "[No comment text]";
+  commentTextHTML = DOMPurify.sanitize(commentTextHTML);
+  commentTextHTML = addTargetBlankToLinks(commentTextHTML);
+  if (queryTokens.length > 0) {
+    commentTextHTML = highlightSearchTerms(commentTextHTML, queryTokens);
+  }
+  const authorName = c.author || "[unknown author]";
+  const plainTextComment = commentTextHTML.replace(/<[^>]+>/g, "");
+
+  let jobTitle = "";
+  if (currentCategory === "hiring") {
+    const titleLineMatch = plainTextComment.match(/^.*?(?=\n|$)/);
+    const rawTitleLine = titleLineMatch ? titleLineMatch[0].trim() : "";
+    jobTitle = rawTitleLine.includes("|")
+      ? rawTitleLine.split("|")[0].trim()
+      : rawTitleLine;
+    if (jobTitle.length < 2 || jobTitle.length > 80) {
+      jobTitle = "Job Post";
+    }
+  } else if (currentCategory === "hired") {
+    jobTitle = "SEEKING WORK";
+  } else if (currentCategory === "freelance") {
+    if (plainTextComment.includes("SEEKING WORK")) {
+      jobTitle = "SEEKING WORK";
+    } else if (plainTextComment.includes("SEEKING FREELANCER")) {
+      jobTitle = "SEEKING FREELANCER";
+    } else {
+      jobTitle = "Title Not Found";
+    }
+  }
+
+  const article = document.createElement("article");
+  article.className = "job-card fade-in";
+  article.tabIndex = 0;
+  article.setAttribute("data-job-id", jobId);
+  if (appliedStatus) article.classList.add("applied");
+  if (isJobSeen(jobId)) article.classList.add("seen");
+
+  let hideOrUnhideBtn = "";
+  if (showHiddenActive) {
+    hideOrUnhideBtn = `<button class="job-action-button btn-unhide btn-remove-margin" data-action="unhide" title="Restore"><i class="fas fa-undo"></i> Restore</button>`;
+  } else {
+    hideOrUnhideBtn = `<button class="job-action-button btn-remove btn-remove-margin" data-action="remove" title="Exclude"><i class="fas fa-xmark"></i> Exclude</button>`;
+  }
+
+  article.innerHTML = `
+          <div class="job-header" data-action="toggle">
+              <div class="job-header-top">
+                  <div class="job-header-status">
+                      ${
+                        appliedStatus
+                          ? `<span class="badge badge-applied">Applied</span>
+                          <div class="meta"><i class="far fa-calendar"></i> ${new Date(
+                            appliedStatus
+                          ).toLocaleString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}</div>`
+                          : ""
+                      }
+                  </div>
+                  <div class="job-posted-time">${
+                    postedTime
+                      ? `<a href="https://news.ycombinator.com/item?id=${jobId}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${postedTime}</a>`
+                      : ""
+                  }</div>
+              </div>
+              <div class="job-title-container">
+                  <button class="action-btn star-btn${
+                    isFav ? "" : " inactive"
+                  }" data-action="star" title="Add to Favorite" aria-label="Star job"><i class="fas fa-star"></i></button>
+                  <div class="job-title"><a href="https://news.ycombinator.com/item?id=${jobId}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${jobTitle}</a></div>
+                  <button class="action-btn collapse-btn" data-action="toggle" title="Expand job details" aria-label="Toggle job details"><i class="fas fa-chevron-down"></i></button>
+              </div>
+              <div class="job-author-container">
+                  <div class="job-author">
+                      <span class="job-author-main">Posted by: ${authorName}</span>
+                      <a href="https://news.ycombinator.com/item?id=${jobId}" class="action-btn" target="_blank" rel="noopener noreferrer" title="Open on Hacker News" aria-label="Open on Hacker News"><i class="fas fa-external-link-alt"></i></a>
+                      <button class="action-btn" data-action="copy-link" title="Copy link" aria-label="Copy link"><i class="fas fa-copy"></i></button>
+                  </div>
+              </div>
+          </div>
+          <div class="job-body">
+              <div class="job-content">
+                  <div class="job-description">${commentTextHTML}</div>
+              </div>
+              <div class="job-notes">
+                  <textarea class="note" placeholder="Add notes about this position...">${note}</textarea>
+              </div>
+              <div class="job-actions">
+                  ${hideOrUnhideBtn}
+                  <button class="job-action-button btn-save-note" data-action="save-note" title="Update Note"><i class="fas fa-edit"></i> Update Note</button>
+                  ${
+                    appliedStatus
+                      ? `<button class="btn-unapply" data-action="unapply"><i class="fas fa-times"></i> Remove Applied Status</button>`
+                      : `<button class="job-action-button btn-apply" data-action="apply"><i class="fas fa-check"></i> Mark as Applied</button>`
+                  }
+              </div>
+          </div>
+      `;
+  return article;
+}
+
+function renderNextChunk(
+  container: HTMLElement,
+  comments: any[],
+  offset: number,
+  queryTokens: string[],
+  showHiddenActive: boolean
+) {
+  const end = Math.min(offset + RENDER_CHUNK_SIZE, comments.length);
+  for (let i = offset; i < end; i++) {
+    container.appendChild(buildJobCard(comments[i], queryTokens, showHiddenActive));
+  }
+  setupSeenObserver();
+
+  if (end >= comments.length) return;
+
+  const sentinel = document.createElement("div");
+  sentinel.className = "render-sentinel";
+  container.appendChild(sentinel);
+
+  renderObserver = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        renderObserver.disconnect();
+        renderObserver = null;
+        sentinel.remove();
+        renderNextChunk(container, comments, end, queryTokens, showHiddenActive);
+      }
+    },
+    { rootMargin: "400px" }
+  );
+  renderObserver.observe(sentinel);
+}
+
 export function renderJobs(commentsToRender) {
   const container = document.getElementById("jobs");
   const query = (document.getElementById("search") as HTMLInputElement).value;
@@ -512,6 +687,10 @@ export function renderJobs(commentsToRender) {
     document.getElementById("showHidden")?.classList.contains(highlightClass) ||
     false;
 
+  if (renderObserver) {
+    renderObserver.disconnect();
+    renderObserver = null;
+  }
   container.innerHTML = "";
   let filteredComments = commentsToRender;
   const getJobId = (comment) => comment.id;
@@ -578,152 +757,8 @@ export function renderJobs(commentsToRender) {
     return;
   }
 
-  filteredComments.forEach((c) => {
-    const jobId = getJobId(c);
-    const appliedStatus = applied[currentThreadId]?.[jobId];
-    const note = notes[currentThreadId]?.[jobId] || "";
-    const isFav = favorites[currentThreadId]?.[jobId];
-    // const isHidden = hidden[currentThreadId]?.[jobId]; // Already used for filtering
-
-    let postedTime = "";
-    if (c.created_at) {
-      const d = new Date(c.created_at);
-      const formattedDate = d.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      });
-      const now = new Date();
-      const diffMs = now.getTime() - d.getTime();
-      const diffSecs = Math.floor(diffMs / 1000);
-      const diffMins = Math.floor(diffSecs / 60);
-      const diffHours = Math.floor(diffMins / 60);
-      const diffDays = Math.floor(diffHours / 24);
-      let timeAgo = "";
-      if (diffDays > 0)
-        timeAgo = `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
-      else if (diffHours > 0)
-        timeAgo = `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
-      else if (diffMins > 0)
-        timeAgo = `${diffMins} ${diffMins === 1 ? "minute" : "minutes"} ago`;
-      else timeAgo = "just now";
-      postedTime = `${formattedDate} <span title="${d.toLocaleString()}">(${timeAgo})</span>`;
-    }
-
-    let commentTextHTML = c.text || "[No comment text]";
-
-    commentTextHTML = DOMPurify.sanitize(commentTextHTML);
-
-    commentTextHTML = addTargetBlankToLinks(commentTextHTML);
-    if (queryTokens.length > 0) {
-      commentTextHTML = highlightSearchTerms(commentTextHTML, queryTokens);
-    }
-    const authorName = c.author || "[unknown author]";
-    const plainTextComment = commentTextHTML.replace(/<[^>]+>/g, "");
-
-    let jobTitle = "";
-
-    if (currentCategory === "hiring") {
-      const titleLineMatch = plainTextComment.match(/^.*?(?=\n|$)/);
-      const rawTitleLine = titleLineMatch ? titleLineMatch[0].trim() : "";
-
-      jobTitle = rawTitleLine.includes("|")
-        ? rawTitleLine.split("|")[0].trim()
-        : rawTitleLine;
-      if (jobTitle.length < 2 || jobTitle.length > 80) {
-        jobTitle = "Job Post";
-      }
-    } else if (currentCategory === "hired") {
-      jobTitle = "SEEKING WORK";
-    } else if (currentCategory === "freelance") {
-      if (plainTextComment.includes("SEEKING WORK")) {
-        jobTitle = "SEEKING WORK";
-      } else if (plainTextComment.includes("SEEKING FREELANCER")) {
-        jobTitle = "SEEKING FREELANCER";
-      } else {
-        jobTitle = "Title Not Found";
-      }
-    }
-
-    const article = document.createElement("article");
-    article.className = "job-card fade-in";
-    article.tabIndex = 0;
-    article.setAttribute("data-job-id", jobId);
-    if (appliedStatus) article.classList.add("applied");
-    if (isJobSeen(String(jobId))) article.classList.add("seen");
-
-    let hideOrUnhideBtn = "";
-    if (showHiddenActive) {
-      hideOrUnhideBtn = `<button class="job-action-button btn-unhide btn-remove-margin" data-action="unhide" title="Restore"><i class="fas fa-undo"></i> Restore</button>`;
-    } else {
-      hideOrUnhideBtn = `<button class="job-action-button btn-remove btn-remove-margin" data-action="remove" title="Exclude"><i class="fas fa-xmark"></i> Exclude</button>`;
-    }
-
-    article.innerHTML = `
-            <div class="job-header" data-action="toggle">
-                <div class="job-header-top">
-                    <div class="job-header-status">
-                        ${
-                          appliedStatus
-                            ? `<span class="badge badge-applied">Applied</span>
-                            <div class="meta"><i class="far fa-calendar"></i> ${new Date(
-                              appliedStatus
-                            ).toLocaleString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "numeric",
-                              minute: "2-digit",
-                              hour12: true,
-                            })}</div>`
-                            : ""
-                        }
-                    </div>
-                    <div class="job-posted-time">${
-                      postedTime
-                        ? `<a href="https://news.ycombinator.com/item?id=${jobId}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${postedTime}</a>`
-                        : ""
-                    }</div>
-                </div>
-                <div class="job-title-container">
-                    <button class="action-btn star-btn${
-                      isFav ? "" : " inactive"
-                    }" data-action="star" title="Add to Favorite" aria-label="Star job"><i class="fas fa-star"></i></button>
-                    <div class="job-title"><a href="https://news.ycombinator.com/item?id=${jobId}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${jobTitle}</a></div>
-                    <button class="action-btn collapse-btn" data-action="toggle" title="Expand job details" aria-label="Toggle job details"><i class="fas fa-chevron-down"></i></button>
-                </div>
-                <div class="job-author-container">
-                    <div class="job-author">
-                        <span class="job-author-main">Posted by: ${authorName}</span>
-                        <a href="https://news.ycombinator.com/item?id=${jobId}" class="action-btn" target="_blank" rel="noopener noreferrer" title="Open on Hacker News" aria-label="Open on Hacker News"><i class="fas fa-external-link-alt"></i></a>
-                        <button class="action-btn" data-action="copy-link" title="Copy link" aria-label="Copy link"><i class="fas fa-copy"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div class="job-body">
-                <div class="job-content">
-                    <div class="job-description">${commentTextHTML}</div>
-                </div>
-                <div class="job-notes">
-                    <textarea class="note" placeholder="Add notes about this position...">${note}</textarea>
-                </div>
-                <div class="job-actions">
-                    ${hideOrUnhideBtn}
-                    <button class="job-action-button btn-save-note" data-action="save-note" title="Update Note"><i class="fas fa-edit"></i> Update Note</button>
-                    ${
-                      appliedStatus
-                        ? `<button class="btn-unapply" data-action="unapply"><i class="fas fa-times"></i> Remove Applied Status</button>`
-                        : `<button class="job-action-button btn-apply" data-action="apply"><i class="fas fa-check"></i> Mark as Applied</button>`
-                    }
-                </div>
-            </div>
-        `;
-    container.appendChild(article);
-  });
-
+  renderNextChunk(container, filteredComments, 0, queryTokens, showHiddenActive);
   updateFilterCounts();
-  setupSeenObserver();
 }
 
 export function updateFilterCounts() {

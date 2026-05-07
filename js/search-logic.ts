@@ -1,6 +1,35 @@
 const REGEX_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/g;
 const WORD_CHAR_REGEX = /\w/;
 
+function levenshtein(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const row: number[] = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    let prev = row[0];
+    row[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const tmp = row[j];
+      row[j] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, row[j], row[j - 1]);
+      prev = tmp;
+    }
+  }
+  return row[n];
+}
+
+function fuzzyWordMatch(term: string, text: string): boolean {
+  const maxEdits = term.length <= 4 ? 0 : term.length <= 7 ? 1 : 2;
+  if (maxEdits === 0) return false;
+  const words = text.split(/\W+/);
+  for (const word of words) {
+    if (!word || Math.abs(word.length - term.length) > maxEdits) continue;
+    if (levenshtein(term, word) <= maxEdits) return true;
+  }
+  return false;
+}
+
 export function escapeRegex(term) {
   return term.replace(REGEX_SPECIAL_CHARS, "\\$&");
 }
@@ -140,6 +169,13 @@ export function checkTerm(token, commentText, author, noteText) {
         commentText.includes(actualTerm) ||
         author.includes(actualTerm) ||
         noteText.includes(actualTerm);
+    }
+    // Fuzzy fallback: if exact/word-boundary match failed, try approximate match
+    if (!termFound) {
+      termFound =
+        fuzzyWordMatch(actualTerm, commentText) ||
+        fuzzyWordMatch(actualTerm, author) ||
+        fuzzyWordMatch(actualTerm, noteText);
     }
   }
 

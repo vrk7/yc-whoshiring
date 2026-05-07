@@ -24,6 +24,7 @@ import {
 } from "./search-logic.js";
 import { getYearAndMonthFromTitle } from "./utils.js";
 import { loadThread } from "./thread-manager.js";
+import { isJobSeen, setupSeenObserver } from "./seen.js";
 
 export const highlightClass = "active";
 
@@ -651,6 +652,7 @@ export function renderJobs(commentsToRender) {
     article.tabIndex = 0;
     article.setAttribute("data-job-id", jobId);
     if (appliedStatus) article.classList.add("applied");
+    if (isJobSeen(String(jobId))) article.classList.add("seen");
 
     let hideOrUnhideBtn = "";
     if (showHiddenActive) {
@@ -721,6 +723,7 @@ export function renderJobs(commentsToRender) {
   });
 
   updateFilterCounts();
+  setupSeenObserver();
 }
 
 export function updateFilterCounts() {

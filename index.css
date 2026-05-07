@@ -1261,3 +1261,31 @@ body:not(.dark) .search-match {
   background: var(--primary);
   color: var(--surface);
 }
+
+/* Collapsible job cards */
+.job-card .job-body {
+  display: none;
+}
+
+.job-card.expanded .job-body {
+  display: block;
+}
+
+.job-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.collapse-btn {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.collapse-btn .fa-chevron-down {
+  transition: transform 0.2s ease;
+  display: block;
+}
+
+.job-card.expanded .collapse-btn .fa-chevron-down {
+  transform: rotate(180deg);
+}

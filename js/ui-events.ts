@@ -29,6 +29,7 @@ import {
 
 import { removeCacheKeysWithPrefix } from "./cache.js";
 import { getSavedSearches, saveSearch, deleteSavedSearch } from "./saved-searches.js";
+import { exportUserData } from "./data-export.js";
 import { debounce } from "./utils.js";
 
 import {
@@ -366,6 +367,18 @@ function setupFilterButtons() {
     "fas fa-xmark",
     "Show Excluded"
   );
+  const exportBtn = createFilterButton(
+    "exportDataBtn",
+    "fas fa-download",
+    "Export Data",
+    "filter-btn"
+  );
+  exportBtn.title = "Download your favorites, notes, and applied jobs as JSON";
+  exportBtn.onclick = () => {
+    exportUserData();
+    showToast("Data exported!");
+  };
+
   const resetBtn = createFilterButton(
     "resetDefaultsBtn",
     "fas fa-trash-alt",
@@ -390,6 +403,7 @@ function setupFilterButtons() {
     appliedBtn,
     hideAppliedBtn,
     showHiddenBtn,
+    exportBtn,
     resetBtn,
   ].forEach((btn) => controlButtonsContainer.appendChild(btn));
 }

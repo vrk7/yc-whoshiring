@@ -843,37 +843,16 @@ body:not(.dark) .icon-link-button i.fa-sun {
   }
 
   .category-switcher {
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-    gap: 0.5em; /* Increased gap for mobile */
-    /* Add horizontal padding to prevent cutoff */
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    /* Adjust margin to compensate for added padding if needed */
-    margin-left: -0.75rem;
-    margin-right: -0.75rem;
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
-    /* Ensure it doesn't exceed viewport width */
-    width: 100%;
-    box-sizing: border-box; /* Include padding in width calculation */
-  }
-  .category-btn {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .category-switcher {
-    flex-direction: column !important;
+    flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
+    margin-top: 0.5rem;
   }
-  .category-switcher .category-btn {
+  .category-btn {
     width: 100%;
     text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
   }
 
   .switcher {
@@ -910,7 +889,32 @@ body:not(.dark) .icon-link-button i.fa-sun {
   }
 
   .toast {
-    display: none !important;
+    right: 1rem;
+    left: 1rem;
+    bottom: 1rem;
+    text-align: center;
+  }
+
+  .logo-hn {
+    font-size: 2rem;
+  }
+
+  .job-title {
+    font-size: 1.1rem;
+  }
+
+  .job-card {
+    padding: 0.85rem;
+    margin: 0.75rem 0;
+  }
+
+  #search {
+    font-size: 16px; /* prevents iOS auto-zoom on focus */
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
   }
 }
 

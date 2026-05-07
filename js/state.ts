@@ -1,4 +1,4 @@
-import { appliedKey, notesKey, favoriteKey, hiddenKey } from "./config.js";
+import { appliedKey, notesKey, favoriteKey, hiddenKey, seenKey } from "./config.js";
 
 export let applied = JSON.parse(localStorage.getItem(appliedKey) || "{}");
 export let notes = JSON.parse(localStorage.getItem(notesKey) || "{}");
@@ -12,6 +12,7 @@ export let currentThreadId = null;
 export let allComments = []; // This will now hold comments for the *currently selected* thread only
 export let favorites = JSON.parse(localStorage.getItem(favoriteKey) || "{}");
 export let hidden = JSON.parse(localStorage.getItem(hiddenKey) || "{}");
+export let seen = JSON.parse(localStorage.getItem(seenKey) || "{}");
 
 export let initialThreadsLoadingCompleted = false; // Added this line
 
@@ -50,6 +51,10 @@ export function setFavorites(newFavorites) {
 
 export function setHidden(newHidden) {
   hidden = newHidden;
+}
+
+export function setSeen(newSeen) {
+  seen = newSeen;
 }
 
 export function setActiveToastHideTimerId(newId) {

@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/vrk7/yc-whoshiring/actions/workflows/ci.yml/badge.svg)](https://github.com/vrk7/yc-whoshiring/actions/workflows/ci.yml)
 
+**Live: [vrk7.github.io/yc-whoshiring](https://vrk7.github.io/yc-whoshiring/)**
+
 A fast, fully local frontend for Hacker News "Who is Hiring?" threads. Everything runs in your browser — no account, no server, no data sent anywhere.
 
 ## Features

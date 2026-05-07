@@ -4,6 +4,7 @@ import {
   favoriteKey,
   themekey,
   hiddenKey,
+  seenKey,
   searchDebounceTimeout,
   CATEGORY_CACHE_KEY,
   CATEGORY_API_MAP,
@@ -22,6 +23,7 @@ import {
   setNotes,
   setFavorites,
   setHidden,
+  setSeen,
   setActiveToastHideTimerId,
 } from "./state.js";
 
@@ -40,6 +42,7 @@ import {
 
 import { parseQuery } from "./search-logic.js";
 import type { DomElements } from "./types.js";
+import { markJobAsSeen } from "./seen.js";
 
 // DOM Elements Cache
 let domElements: DomElements = {
@@ -317,9 +320,10 @@ function resetAllData() {
   setFavorites({});
   setNotes({});
   setHidden({});
+  setSeen({});
 
   // Clear localStorage
-  const keysToRemove = [appliedKey, favoriteKey, notesKey, hiddenKey, themekey];
+  const keysToRemove = [appliedKey, favoriteKey, notesKey, hiddenKey, seenKey, themekey];
   keysToRemove.forEach((key) => localStorage.removeItem(key));
 
   try {
@@ -415,8 +419,11 @@ const jobCardActions = {
   unhide: handleUnhideAction,
 };
 
-function handleToggleAction(_jobId: string, _actionTarget: HTMLElement, jobCard: HTMLElement) {
+function handleToggleAction(jobId: string, _actionTarget: HTMLElement, jobCard: HTMLElement) {
   jobCard.classList.toggle("expanded");
+  if (jobCard.classList.contains("expanded")) {
+    markJobAsSeen(jobId);
+  }
 }
 
 function handleStarAction(jobId, actionTarget) {

@@ -660,7 +660,7 @@ export function renderJobs(commentsToRender) {
     }
 
     article.innerHTML = `
-            <div class="job-header">
+            <div class="job-header" data-action="toggle">
                 <div class="job-header-top">
                     <div class="job-header-status">
                         ${
@@ -689,6 +689,7 @@ export function renderJobs(commentsToRender) {
                       isFav ? "" : " inactive"
                     }" data-action="star" title="Add to Favorite" aria-label="Star job"><i class="fas fa-star"></i></button>
                     <div class="job-title"><a href="https://news.ycombinator.com/item?id=${jobId}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${jobTitle}</a></div>
+                    <button class="action-btn collapse-btn" data-action="toggle" title="Expand job details" aria-label="Toggle job details"><i class="fas fa-chevron-down"></i></button>
                 </div>
                 <div class="job-author-container">
                     <div class="job-author">
@@ -698,20 +699,22 @@ export function renderJobs(commentsToRender) {
                     </div>
                 </div>
             </div>
-            <div class="job-content">
-                <div class="job-description">${commentTextHTML}</div>
-            </div>
-            <div class="job-notes">
-                <textarea class="note" placeholder="Add notes about this position...">${note}</textarea>
-            </div>
-            <div class="job-actions">
-                ${hideOrUnhideBtn}
-                <button class="job-action-button btn-save-note" data-action="save-note" title="Update Note"><i class="fas fa-edit"></i> Update Note</button>
-                ${
-                  appliedStatus
-                    ? `<button class="btn-unapply" data-action="unapply"><i class="fas fa-times"></i> Remove Applied Status</button>`
-                    : `<button class="job-action-button btn-apply" data-action="apply"><i class="fas fa-check"></i> Mark as Applied</button>`
-                }
+            <div class="job-body">
+                <div class="job-content">
+                    <div class="job-description">${commentTextHTML}</div>
+                </div>
+                <div class="job-notes">
+                    <textarea class="note" placeholder="Add notes about this position...">${note}</textarea>
+                </div>
+                <div class="job-actions">
+                    ${hideOrUnhideBtn}
+                    <button class="job-action-button btn-save-note" data-action="save-note" title="Update Note"><i class="fas fa-edit"></i> Update Note</button>
+                    ${
+                      appliedStatus
+                        ? `<button class="btn-unapply" data-action="unapply"><i class="fas fa-times"></i> Remove Applied Status</button>`
+                        : `<button class="job-action-button btn-apply" data-action="apply"><i class="fas fa-check"></i> Mark as Applied</button>`
+                    }
+                </div>
             </div>
         `;
     container.appendChild(article);

@@ -29,7 +29,7 @@ import {
 
 import { removeCacheKeysWithPrefix } from "./cache.js";
 import { getSavedSearches, saveSearch, deleteSavedSearch } from "./saved-searches.js";
-import { exportUserData } from "./data-export.js";
+import { exportUserData, importUserData } from "./data-export.js";
 import {
   isNotificationsEnabled,
   enableNotifications,
@@ -372,6 +372,35 @@ function setupFilterButtons() {
     "fas fa-xmark",
     "Show Excluded"
   );
+  const importInput = document.createElement("input");
+  importInput.type = "file";
+  importInput.accept = ".json,application/json";
+  importInput.style.display = "none";
+  document.body.appendChild(importInput);
+
+  const importBtn = createFilterButton(
+    "importDataBtn",
+    "fas fa-upload",
+    "Import Data",
+    "filter-btn"
+  );
+  importBtn.title = "Restore data from a previously exported JSON file";
+  importBtn.onclick = () => importInput.click();
+
+  importInput.addEventListener("change", async () => {
+    const file = importInput.files?.[0];
+    importInput.value = "";
+    if (!file) return;
+    try {
+      const count = await importUserData(file);
+      showToast(`Imported ${count} entries. Reloading...`);
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (e) {
+      console.error("Import error:", e);
+      showToast("Import failed: invalid or corrupted file.");
+    }
+  });
+
   const exportBtn = createFilterButton(
     "exportDataBtn",
     "fas fa-download",
@@ -408,6 +437,7 @@ function setupFilterButtons() {
     appliedBtn,
     hideAppliedBtn,
     showHiddenBtn,
+    importBtn,
     exportBtn,
     resetBtn,
   ].forEach((btn) => controlButtonsContainer.appendChild(btn));

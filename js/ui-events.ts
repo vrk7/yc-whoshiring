@@ -28,6 +28,7 @@ import {
 } from "./state.js";
 
 import { removeCacheKeysWithPrefix } from "./cache.js";
+import { getSavedSearches, saveSearch, deleteSavedSearch } from "./saved-searches.js";
 import { debounce } from "./utils.js";
 
 import {
@@ -731,6 +732,69 @@ function applyInitialURLParams() {
   updateParsedQuery();
 }
 
+// Saved searches
+function renderSavedSearches() {
+  const container = document.getElementById("saved-searches");
+  if (!container) return;
+  const searches = getSavedSearches();
+  container.innerHTML = "";
+  if (searches.length === 0) return;
+
+  searches.forEach((s) => {
+    const chip = document.createElement("span");
+    chip.className = "saved-search-chip";
+
+    const applyBtn = document.createElement("button");
+    applyBtn.className = "saved-search-apply";
+    applyBtn.title = `Apply: ${s.query}`;
+    applyBtn.innerHTML = '<i class="fas fa-search"></i> ';
+    applyBtn.appendChild(document.createTextNode(s.query));
+    applyBtn.addEventListener("click", () => {
+      if (!domElements.searchInput) return;
+      domElements.searchInput.value = s.query;
+      domElements.searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "saved-search-delete";
+    deleteBtn.title = "Remove saved search";
+    deleteBtn.setAttribute("aria-label", "Remove saved search");
+    deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+    deleteBtn.addEventListener("click", () => {
+      deleteSavedSearch(s.id);
+      renderSavedSearches();
+    });
+
+    chip.appendChild(applyBtn);
+    chip.appendChild(deleteBtn);
+    container.appendChild(chip);
+  });
+}
+
+function setupSavedSearches() {
+  const operatorButtons = document.querySelector(".operator-buttons");
+  if (operatorButtons) {
+    const saveBtn = document.createElement("button");
+    saveBtn.id = "saveSearchBtn";
+    saveBtn.className = "op-btn";
+    saveBtn.title = "Save current search";
+    saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Save';
+    saveBtn.addEventListener("click", () => {
+      const query = domElements.searchInput?.value || "";
+      if (saveSearch(query)) {
+        renderSavedSearches();
+        showToast("Search saved!");
+      } else if (!query.trim()) {
+        showToast("Type a search query first.");
+      } else {
+        showToast("Already saved.");
+      }
+    });
+    operatorButtons.appendChild(saveBtn);
+  }
+  renderSavedSearches();
+}
+
 // Main initialization
 export function initUIEventListeners() {
   if (uiEventListenersInitialized) {
@@ -750,5 +814,6 @@ export function initUIEventListeners() {
   setupToastScrollListener();
   setupGoToTopButton();
   setupHelpModal();
+  setupSavedSearches();
   applyInitialURLParams();
 }

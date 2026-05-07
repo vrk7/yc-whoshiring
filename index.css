@@ -1335,3 +1335,53 @@ body:not(.dark) .search-match {
 .job-tag.tag-hybrid {
   border-color: #e65100;
 }
+
+/* Saved searches */
+.saved-searches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.saved-search-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 0.78rem;
+}
+
+.saved-search-apply {
+  padding: 2px 8px;
+  background: transparent;
+  border: none;
+  color: var(--on-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.85;
+}
+
+.saved-search-apply:hover {
+  background: var(--button-hover);
+  opacity: 1;
+}
+
+.saved-search-delete {
+  padding: 2px 6px;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border);
+  color: var(--on-surface);
+  cursor: pointer;
+  opacity: 0.5;
+  line-height: 1;
+}
+
+.saved-search-delete:hover {
+  opacity: 1;
+  color: var(--danger);
+}

@@ -27,7 +27,7 @@ import {
   setActiveToastHideTimerId,
 } from "./state.js";
 
-import { removeLocalStorageKeysWithPrefix } from "./cache.js";
+import { removeCacheKeysWithPrefix } from "./cache.js";
 import { debounce } from "./utils.js";
 
 import {
@@ -308,7 +308,7 @@ function setActiveFilter(btnToActivate) {
   renderJobs(allComments);
 }
 
-function resetAllData() {
+async function resetAllData() {
   const confirmed = window.confirm(
     "Are you sure you want to clear all applied statuses, notes, favorites, hidden jobs, AND caches? This cannot be undone."
   );
@@ -326,14 +326,7 @@ function resetAllData() {
   const keysToRemove = [appliedKey, favoriteKey, notesKey, hiddenKey, seenKey, themekey];
   keysToRemove.forEach((key) => localStorage.removeItem(key));
 
-  try {
-    removeLocalStorageKeysWithPrefix([
-      "hn_thread_comments_",
-      CATEGORY_CACHE_KEY,
-    ]);
-  } catch (e) {
-    console.error("Error clearing caches from localStorage", e);
-  }
+  await removeCacheKeysWithPrefix(["hn_thread_comments_", CATEGORY_CACHE_KEY]);
 
   filterButtons.forEach((btn) => btn.classList.remove(HIGHLIGHT_CLASS));
   showToast("All data cleared. Reloading...");

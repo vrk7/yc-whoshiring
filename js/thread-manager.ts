@@ -168,7 +168,7 @@ export async function loadThread(id: string | number, options: LoadThreadOptions
   const cacheKey = getThreadCacheKey(requestedIdForThisCall);
 
   try {
-    const cachedData = getCache(cacheKey);
+    const cachedData = await getCache(cacheKey);
     let commentsForThisRequest = [];
 
     if (
@@ -229,7 +229,7 @@ export async function loadThread(id: string | number, options: LoadThreadOptions
       }
 
       const refreshedAt = Date.now();
-      setCache(cacheKey, {
+      await setCache(cacheKey, {
         comments: commentsForThisRequest.map(minimizeCommentObject),
         cachedAt: refreshedAt,
       });
@@ -255,7 +255,7 @@ export async function loadThread(id: string | number, options: LoadThreadOptions
     }
 
     const refreshedAt = Date.now();
-    setCache(cacheKey, {
+    await setCache(cacheKey, {
       comments: commentsForThisRequest.map(minimizeCommentObject),
       cachedAt: refreshedAt,
     });
@@ -303,7 +303,7 @@ async function fetchAllCategoryThreads() {
   }
 
   setAllThreads(nextThreads);
-  setCache(CATEGORY_CACHE_KEY, nextThreads);
+  await setCache(CATEGORY_CACHE_KEY, nextThreads);
 
   return nextThreads;
 }
@@ -335,7 +335,7 @@ async function fetchLatestCategoryThreadsInBackground({
 
     if (updated) {
       setAllThreads(nextThreads);
-      setCache(CATEGORY_CACHE_KEY, nextThreads);
+      await setCache(CATEGORY_CACHE_KEY, nextThreads);
       renderCategorySwitcher();
     }
 
@@ -383,7 +383,7 @@ export async function fetchAndStoreThreads() {
   }
 
   activeInitialLoadPromise = (async () => {
-    const cachedData = normalizeCategoryCache(getCache(CATEGORY_CACHE_KEY));
+    const cachedData = normalizeCategoryCache(await getCache(CATEGORY_CACHE_KEY));
 
     if (cachedData) {
       setAllThreads(buildThreadsState(cachedData));

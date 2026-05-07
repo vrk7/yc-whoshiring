@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HN Who is hiring</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="index.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#333333" />
+  </head>
+
+  <body class="dark">
+    <header>
+      <div class="header-content">
+        <!-- Text Logo Start -->
+        <div class="text-logo">
+          <a
+            href="https://news.ycombinator.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="logo-hn"
+            >HN</a
+          >
+          <a
+            href="https://news.ycombinator.com/submitted?id=whoishiring"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="logo-wh"
+            >WHO'S<br />HIRING</a
+          >
+        </div>
+        <!-- Text Logo End -->
+      </div>
+      <div
+        class="header-buttons"
+        style="
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        "
+      >
+        <span class="unofficial-text"> Unofficial project </span>
+        <button
+          class="icon-link-button"
+          aria-label="View source on GitHub"
+          onclick="window.open('https://github.com/dheerajck/hnwhoishiring', '_blank', 'noopener,noreferrer')"
+          onauxclick="window.open('https://github.com/dheerajck/hnwhoishiring', '_blank', 'noopener,noreferrer')"
+        >
+          <i class="fab fa-github"></i>
+        </button>
+        <button
+          id="themeToggle"
+          class="icon-link-button"
+          aria-label="Switch theme"
+        >
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="controls">
+        <div class="search-container">
+          <div class="search-field-wrapper">
+            <i class="fas fa-search search-icon-main" aria-hidden="true"></i>
+            <input
+              id="search"
+              type="text"
+              placeholder="python | javascript & remote & ~us-based"
+              aria-label="Search jobs"
+            />
+            <button
+              id="clearSearchBtn"
+              class="clear-search-btn"
+              aria-label="Clear search"
+              title="Clear search"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <!-- Add Operator Buttons Container -->
+          <div class="operator-buttons">
+            <button class="op-btn" data-op=" & " title="AND Operator">&</button>
+            <button class="op-btn" data-op=" | " title="OR Operator">|</button>
+            <button class="op-btn" data-op=" ~" title="NOT Operator">~</button>
+
+            <button
+              id="openHelpModal"
+              class="help-modal-btn"
+              style="
+                margin-left: 1rem;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                gap: 0.5em;
+              "
+            >
+              Help
+              <i
+                class="fas fa-question-circle"
+                aria-hidden="true"
+                style="font-size: 1em"
+              ></i>
+            </button>
+            <div
+              id="helpModal"
+              class="help-modal-overlay"
+              style="display: none"
+            >
+              <div class="help-modal-window">
+                <button
+                  id="closeHelpModal"
+                  class="help-modal-close"
+                  aria-label="Close help"
+                >
+                  &times;
+                </button>
+                <h2 style="margin-top: 0">Search Help</h2>
+                <ul style="padding-left: 1.2em">
+                  <li>
+                    <b><code>remote</code></b
+                    ><br />
+                    Find jobs containing the word <code>remote</code>.
+                  </li>
+                  <li>
+                    <b><code>"@gmail.com"</code></b
+                    ><br />
+                    Find jobs containing the exact string
+                    <code>"@gmail.com"</code>.
+                  </li>
+                  <li>
+                    <b><code>rust &amp; backend</code></b
+                    ><br />
+                    Find jobs that contain both <code>rust</code> and
+                    <code>backend</code>.
+                  </li>
+                  <li>
+                    <b><code>react | flutter</code></b
+                    ><br />
+                    Find jobs that contain either <code>react</code> or
+                    <code>flutter</code>.
+                  </li>
+                  <li>
+                    <b><code>~us-based</code></b
+                    ><br />
+                    Find jobs that do <b>not</b> contain <code>us-based</code>.
+                  </li>
+                  <li>
+                    <b><code>~relocate &amp; ~"no equity"</code></b
+                    ><br />
+                    Find jobs that do <b>not</b> contain both the word
+                    <code>relocate</code> and the exact string
+                    <code>"no equity"</code>.
+                  </li>
+                  <li>
+                    <b
+                      ><code
+                        >python | javascript &amp; remote &amp; ~us-based</code
+                      ></b
+                    ><br />
+                    Find jobs that contain <code>python</code> or
+                    <code>javascript</code>, and <code>remote</code>, but not
+                    <code>us-based</code>.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div id="parsed-query-display" class="parsed-query-container"></div>
+          <a href="#" id="try-example-search" class="try-example-link"
+            >Try example search</a
+          >
+        </div>
+
+        <div class="control-buttons filter-row">
+          <!-- Filter buttons will be injected here by JS -->
+        </div>
+
+        <div class="category-switcher" aria-label="Category navigation">
+          <!-- Category buttons will be injected here by JS -->
+        </div>
+        <hr class="category-divider" />
+      </section>
+
+      <!-- Existing Month Switcher - now hierarchical -->
+      <nav class="switcher" aria-label="Thread navigation">
+        <div class="year-selector"></div>
+        <div class="month-selector"></div>
+      </nav>
+
+      <div class="status-meta">
+        <div id="load-time-info" aria-live="polite"></div>
+        <div id="last-refreshed-info" aria-live="polite"></div>
+      </div>
+
+      <section id="jobs" class="job-listings" aria-live="polite">
+        <div class="loading">
+          <i class="fas fa-circle-notch" aria-hidden="true"></i>
+          Loading...
+        </div>
+      </section>
+    </main>
+
+    <div
+      id="toast"
+      class="toast"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    ></div>
+
+    <button id="goToTop" class="go-to-top" aria-label="Go to top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
+
+    <script src="index.js" type="module"></script>
+
+    <script
+      data-goatcounter="https://dheerajck.goatcounter.com/count"
+      async
+      src="https://gc.zgo.at/count.js"
+    ></script>
+  </body>
+</html>

@@ -719,6 +719,32 @@ export function renderJobs(commentsToRender) {
         `;
     container.appendChild(article);
   });
+
+  updateFilterCounts();
+}
+
+export function updateFilterCounts() {
+  const threadFavorites = favorites[currentThreadId] || {};
+  const threadApplied = applied[currentThreadId] || {};
+  const threadNotes = notes[currentThreadId] || {};
+  const threadHidden = hidden[currentThreadId] || {};
+
+  const favCount = Object.keys(threadFavorites).length;
+  const appliedCount = Object.keys(threadApplied).length;
+  const notesCount = Object.keys(threadNotes).length;
+  const hiddenCount = Object.keys(threadHidden).length;
+
+  const setBtn = (id: string, icon: string, label: string, count: number) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.innerHTML = `<i class="${icon}"></i> ${label}${count > 0 ? ` (${count})` : ""}`;
+  };
+
+  setBtn("showFavorites", "fas fa-star", "Favorites", favCount);
+  setBtn("showNotes", "fas fa-sticky-note", "Show Notes", notesCount);
+  setBtn("showApplied", "fas fa-check", "Show Applied", appliedCount);
+  setBtn("hideApplied", "fas fa-eye-slash", "Hide Applied", appliedCount);
+  setBtn("showHidden", "fas fa-xmark", "Show Excluded", hiddenCount);
 }
 
 export function updateThemeIcon() {

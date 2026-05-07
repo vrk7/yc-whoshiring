@@ -29,6 +29,8 @@ import {
   setLoadTimeInfo,
 } from "./ui-render.js";
 
+import { notifyNewJobs, notifyNewThread, setUnreadBadge } from "./notifications.js";
+
 let activeThreadRequestToken = 0;
 let activeCategoryRefreshPromise = null;
 let activeInitialLoadPromise = null;
@@ -237,6 +239,8 @@ export async function loadThread(id: string | number, options: LoadThreadOptions
       setAllComments(commentsForThisRequest);
       if (uniqueNewComments.length > 0) {
         renderJobs(commentsForThisRequest);
+        notifyNewJobs(uniqueNewComments.length);
+        setUnreadBadge(uniqueNewComments.length);
       }
 
       const duration = ((performance.now() - startTime) / 1000).toFixed(2);
@@ -362,6 +366,7 @@ async function fetchLatestCategoryThreadsInBackground({
     }
 
     if (shouldPromoteLatestThread) {
+      notifyNewThread(latestThreadAfterRefresh.title);
       await loadThread(latestThreadAfterRefresh.objectID);
       return {
         updated,

@@ -3,6 +3,7 @@ import { fetchAndStoreThreads, refreshActiveView } from "./thread-manager.js";
 import { CATEGORY_API_MAP } from "./config.js";
 import { setCurrentCategory } from "./state.js";
 import { showToast } from "./ui-render.js";
+import { clearUnreadBadge } from "./notifications.js";
 
 const RESUME_REFRESH_THROTTLE_MS = 15000;
 
@@ -57,6 +58,7 @@ function bindLifecycleListeners() {
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
+      clearUnreadBadge();
       scheduleResumeRefresh("visibilitychange");
     }
   });

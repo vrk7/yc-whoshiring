@@ -217,6 +217,7 @@ export const themekey = "themeHNv1";
 export const hiddenKey = "hiddenHNv1";
 export const seenKey = "seenHNv1";
 export const savedSearchesKey = "savedSearchesHNv1";
+export const notificationsKey = "notifEnabledHNv1";
 
 export const searchDebounceTimeout = 300;
 export const toastTimeout = 3000;

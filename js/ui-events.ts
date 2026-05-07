@@ -30,6 +30,11 @@ import {
 import { removeCacheKeysWithPrefix } from "./cache.js";
 import { getSavedSearches, saveSearch, deleteSavedSearch } from "./saved-searches.js";
 import { exportUserData } from "./data-export.js";
+import {
+  isNotificationsEnabled,
+  enableNotifications,
+  disableNotifications,
+} from "./notifications.js";
 import { debounce } from "./utils.js";
 
 import {
@@ -746,6 +751,54 @@ function applyInitialURLParams() {
   updateParsedQuery();
 }
 
+// Notification bell
+function setupNotificationButton() {
+  const headerButtons = document.querySelector(".header-buttons");
+  if (!headerButtons) return;
+
+  const btn = document.createElement("button");
+  btn.id = "notifToggle";
+  btn.className = "icon-link-button";
+
+  function refresh() {
+    const on = isNotificationsEnabled();
+    btn.innerHTML = on
+      ? '<i class="fas fa-bell" style="color:var(--primary)"></i>'
+      : '<i class="fas fa-bell-slash"></i>';
+    btn.setAttribute("aria-label", on ? "Disable notifications" : "Enable notifications");
+    btn.title = on ? "Disable notifications" : "Enable notifications";
+  }
+
+  refresh();
+
+  btn.addEventListener("click", async () => {
+    if (isNotificationsEnabled()) {
+      disableNotifications();
+      refresh();
+      showToast("Notifications disabled.");
+    } else {
+      if (!("Notification" in window)) {
+        showToast("Notifications not supported in this browser.");
+        return;
+      }
+      if (Notification.permission === "denied") {
+        showToast("Notifications blocked — enable them in browser settings.");
+        return;
+      }
+      const granted = await enableNotifications();
+      refresh();
+      showToast(granted ? "Notifications enabled!" : "Permission denied.");
+    }
+  });
+
+  const themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    headerButtons.insertBefore(btn, themeToggle);
+  } else {
+    headerButtons.appendChild(btn);
+  }
+}
+
 // Saved searches
 function renderSavedSearches() {
   const container = document.getElementById("saved-searches");
@@ -828,6 +881,7 @@ export function initUIEventListeners() {
   setupToastScrollListener();
   setupGoToTopButton();
   setupHelpModal();
+  setupNotificationButton();
   setupSavedSearches();
   applyInitialURLParams();
 }

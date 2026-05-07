@@ -1,0 +1,29 @@
+{
+  "name": "yc-whoshiring",
+  "version": "1.0.0",
+  "description": "Try it [here](https://dheerajck.github.io/hnwhoishiring/)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vrk7/yc-whoshiring.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/vrk7/yc-whoshiring/issues"
+  },
+  "homepage": "https://github.com/vrk7/yc-whoshiring#readme",
+  "devDependencies": {
+    "vite": "^8.0.11"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.2",
+    "lz-string": "^1.5.0"
+  }
+}

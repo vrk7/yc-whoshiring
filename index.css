@@ -1262,6 +1262,18 @@ body:not(.dark) .search-match {
   color: var(--surface);
 }
 
+/* Seen jobs — dimmed until hovered or expanded */
+.job-card.seen {
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+.job-card.seen:hover,
+.job-card.seen.expanded,
+.job-card.seen:focus-within {
+  opacity: 1;
+}
+
 /* Collapsible job cards */
 .job-card .job-body {
   display: none;

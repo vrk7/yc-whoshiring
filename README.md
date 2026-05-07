@@ -1,53 +1,59 @@
-# Hacker News Job Who is hiring frontend
+# HN Who's Hiring
 
 [![CI](https://github.com/vrk7/yc-whoshiring/actions/workflows/ci.yml/badge.svg)](https://github.com/vrk7/yc-whoshiring/actions/workflows/ci.yml)
 
-An intuitive and easy to use frontend for Hacker News Who is Hiring threads in your browser — completely local, no data leaves your browser.
+A fast, fully local frontend for Hacker News "Who is Hiring?" threads. Everything runs in your browser — no account, no server, no data sent anywhere.
 
-## Search Query Examples
+## Features
 
-Search expressions are evaluated left-to-right. Parentheses are not supported.
+- **Boolean search** — `&`, `|`, `~` operators with fuzzy fallback for typos
+- **Clickable pipe tags** — job posts parsed into tappable `Company | Role | Remote | Stack` tags
+- **Saved searches** — bookmark queries and re-apply them in one click
+- **Favorites, notes, applied tracking** — all stored locally
+- **Export / Import** — move your data between devices via JSON
+- **Browser notifications** — get notified when new jobs or a new monthly thread arrives
+- **Progressive rendering** — first 50 cards appear immediately, rest load as you scroll
+- **PWA** — installable on desktop and mobile
+- **Dark / light theme**
 
-| Query | Description |
-|-------|-------------|
-| [`remote`](https://dheerajck.github.io/hnwhoishiring/?search=remote) | Find jobs containing the word `remote` |
-| [`"@gmail.com"`](https://dheerajck.github.io/hnwhoishiring/?search="@gmail.com") | Find jobs containing the exact string `"@gmail.com"` |
-| [`rust & backend`](https://dheerajck.github.io/hnwhoishiring/?search=rust+%26+backend) | Find jobs that contain both `rust` and `backend` |
-| [`react \| flutter`](https://dheerajck.github.io/hnwhoishiring/?search=react%20%7C%20flutter) | Find jobs that contain either `react` or `flutter` |
-| [`~us-based`](https://dheerajck.github.io/hnwhoishiring/?search=~us-based) | Find jobs that do not contain `us-based` |
-| [`~relocate & ~"no equity"`](https://dheerajck.github.io/hnwhoishiring/?search=%7Erelocate+%26+%7E%22no%20equity%22) | Find jobs that do not contain both the word `relocate` and the exact string `"no equity"` |
-| [`python \| javascript & remote & ~us-based`](https://dheerajck.github.io/hnwhoishiring/?search=python%20%7C%20javascript%20%26%20remote%20%26%20~us-based) | Find jobs containing `python` or `javascript`, then filtered further left-to-right by `remote` and not `us-based` |
+## Run locally
+
+```bash
+npm install
+npm run dev        # start Vite dev server with hot reload
+npm run build      # production build → dist/
+npm run typecheck  # TypeScript check only (no emit)
+```
+
+To develop without network calls, set `USE_MOCK_DATA = true` in `js/config.ts`.
+
+## Search syntax
+
+Expressions are evaluated left-to-right. Parentheses are not supported.
+
+| Query | Matches |
+|-------|---------|
+| `remote` | word "remote" |
+| `"@gmail.com"` | exact phrase |
+| `rust & backend` | both words |
+| `react \| flutter` | either word |
+| `~us-based` | NOT the word |
+| `python \| javascript & remote & ~us-based` | combined |
+
+Single-word terms also do fuzzy matching — words of 5–7 chars tolerate 1 typo, 8+ chars tolerate 2.
 
 ## Keyboard shortcuts
 
 | Key | Action |
 |-----|--------|
-| `j` | Navigate downwards to next job |
-| `k` | Navigate upwards to previous job |
-| `/` | Focus on search |
-| `Esc` | Exit search |
-| `a` | Toggle favourite |
-| `e` | Toggle exclude |
+| `j` / `k` | Next / previous job |
+| `/` | Focus search |
+| `Esc` | Blur search |
+| `a` | Toggle favourite on focused card |
+| `e` | Toggle exclude on focused card |
 | `g` | Scroll to top |
 
 ## Notes
 
-- I did use — purposefully because I like the way it looks right now :)
-- It is completely local, except I use GoatCounter for simple, privacy-friendly analytics.
-- It supports PWA, so you can install it on desktop or mobile.
-
-## Run locally
-
-- Serve the folder over HTTP (needed for ES modules and fetch):
-
-```bash
-# from the project root (where this README is)
-python3 -m http.server 8000
-# then open http://localhost:8000
-```
-
-- To run with built-in mock data (no network calls), open `js/config.js` and set:
-
-```js
-export const USE_MOCK_DATA = true;
-```
+- Completely local — except GoatCounter for simple, privacy-friendly analytics.
+- Supports PWA install on desktop and mobile.

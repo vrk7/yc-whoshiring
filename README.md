@@ -1,6 +1,6 @@
 # Hacker News Job Who is hiring frontend
 
-Try it [here](https://dheerajck.github.io/hnwhoishiring/)
+[![CI](https://github.com/vrk7/yc-whoshiring/actions/workflows/ci.yml/badge.svg)](https://github.com/vrk7/yc-whoshiring/actions/workflows/ci.yml)
 
 An intuitive and easy to use frontend for Hacker News Who is Hiring threads in your browser — completely local, no data leaves your browser.
 

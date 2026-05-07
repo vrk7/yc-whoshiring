@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import { CATEGORY_API_MAP, MONTH_NAMES, toastTimeout } from "./config.js";
 
 import {
@@ -614,9 +615,7 @@ export function renderJobs(commentsToRender) {
 
     let commentTextHTML = c.text || "[No comment text]";
 
-    if (window.DOMPurify) {
-      commentTextHTML = DOMPurify.sanitize(commentTextHTML);
-    }
+    commentTextHTML = DOMPurify.sanitize(commentTextHTML);
 
     commentTextHTML = addTargetBlankToLinks(commentTextHTML);
     if (queryTokens.length > 0) {

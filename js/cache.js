@@ -1,4 +1,4 @@
-import LZString from "https://cdn.skypack.dev/lz-string";
+import LZString from "lz-string";
 import { CATEGORY_CACHE_KEY } from "./config.js";
 
 export function removeLocalStorageKeysWithPrefix(prefixOrPrefixes) {

@@ -644,20 +644,20 @@ function toggleTheme() {
   updateThemeIcon();
 
   if (document.body.classList.contains("dark")) {
-    localStorage.removeItem(themekey);
+    localStorage.setItem(themekey, "dark");
     showToast("Dark mode enabled!");
   } else {
-    localStorage.setItem(themekey, "disabled");
+    localStorage.removeItem(themekey);
     showToast("Light mode enabled!");
   }
 }
 
 function setupTheme() {
-  // Apply initial theme
-  if (localStorage.getItem(themekey) === "disabled") {
-    document.body.classList.remove("dark");
-  } else {
+  // Light is default; dark only when explicitly saved
+  if (localStorage.getItem(themekey) === "dark") {
     document.body.classList.add("dark");
+  } else {
+    document.body.classList.remove("dark");
   }
 
   updateThemeIcon();

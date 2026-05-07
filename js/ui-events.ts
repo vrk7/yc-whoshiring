@@ -404,6 +404,7 @@ function getStateForThread(stateObj) {
 }
 
 const jobCardActions = {
+  toggle: handleToggleAction,
   star: handleStarAction,
   "copy-link": handleCopyLinkAction,
   "save-note": handleSaveNoteAction,
@@ -412,6 +413,10 @@ const jobCardActions = {
   remove: handleRemoveAction,
   unhide: handleUnhideAction,
 };
+
+function handleToggleAction(_jobId: string, _actionTarget: HTMLElement, jobCard: HTMLElement) {
+  jobCard.classList.toggle("expanded");
+}
 
 function handleStarAction(jobId, actionTarget) {
   const currentFavoritesState = { ...favorites };

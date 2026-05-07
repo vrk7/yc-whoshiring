@@ -31,6 +31,7 @@ import { debounce } from "./utils.js";
 import {
   renderJobs,
   updateJobCardInPlace,
+  updateFilterCounts,
   showToast,
   updateThemeIcon,
   renderParsedQuery,
@@ -569,6 +570,7 @@ function handleJobCardClick(event) {
   if (!jobId || !jobCardActions[action]) return;
 
   jobCardActions[action](jobId, actionTarget, jobCard);
+  updateFilterCounts();
 }
 
 function setupJobCardClickListener() {

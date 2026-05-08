@@ -492,6 +492,19 @@ function appendSearchResultsCount(query, filteredCount) {
   }
 }
 
+function extractFirstUrl(html: string): string | null {
+  const match = html.match(/href="(https?:\/\/[^"]+)"/);
+  if (!match) return null;
+  try {
+    const url = new URL(match[1]);
+    // skip HN links and tracking/image URLs
+    if (url.hostname.includes("ycombinator.com") || url.hostname.includes("news.yc")) return null;
+    return match[1];
+  } catch {
+    return null;
+  }
+}
+
 function buildJobCard(c, queryTokens: string[], showHiddenActive: boolean): HTMLElement {
   const jobId = String(c.id);
   const appliedStatus = applied[currentThreadId]?.[jobId];
@@ -534,6 +547,7 @@ function buildJobCard(c, queryTokens: string[], showHiddenActive: boolean): HTML
   const authorName = c.author || "[unknown author]";
   const plainTextComment = commentTextHTML.replace(/<[^>]+>/g, "");
   const tagsHtml = renderTagsHtml(extractPipeTags(c.text || ""));
+  const companyUrl = extractFirstUrl(c.text || "");
 
   let jobTitle = "";
   if (currentCategory === "hiring") {
@@ -600,7 +614,7 @@ function buildJobCard(c, queryTokens: string[], showHiddenActive: boolean): HTML
                   <button class="action-btn star-btn${
                     isFav ? "" : " inactive"
                   }" data-action="star" title="Add to Favorite" aria-label="Star job"><i class="fas fa-star"></i></button>
-                  <div class="job-title"><a href="https://news.ycombinator.com/item?id=${jobId}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${jobTitle}</a></div>
+                  <div class="job-title"><a href="https://news.ycombinator.com/item?id=${jobId}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${jobTitle}</a>${companyUrl ? ` <a href="${companyUrl}" target="_blank" rel="noopener noreferrer" class="action-btn company-url-btn" title="Visit company website" aria-label="Visit company website"><i class="fas fa-globe"></i></a>` : ""}</div>
                   <button class="action-btn collapse-btn" data-action="toggle" title="Expand job details" aria-label="Toggle job details"><i class="fas fa-chevron-down"></i></button>
               </div>
               ${tagsHtml}

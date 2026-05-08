@@ -55,7 +55,12 @@ Single-word terms also do fuzzy matching — words of 5–7 chars tolerate 1 typ
 | `e` | Toggle exclude on focused card |
 | `g` | Scroll to top |
 
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup steps, code conventions, and PR guidelines.
+
 ## Notes
 
 - Completely local — except GoatCounter for simple, privacy-friendly analytics.
 - Supports PWA install on desktop and mobile.
+- Maintained by [Vysakh Ramkrishnan](https://github.com/vrk7).
